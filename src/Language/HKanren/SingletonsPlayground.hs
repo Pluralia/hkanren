@@ -23,8 +23,7 @@
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE UndecidableInstances #-}
-
-{-# LANGUAGE EmptyCase #-}
+{-# LANGUAGE EmptyCase            #-}
 
 module Language.HKanren.SingletonsPlayground where
 
@@ -43,11 +42,11 @@ data instance Sing (n :: Nat) where
   SS :: Sing n -> Sing ('S n)
 
 type SNat (k :: Nat) = Sing k
-
-class (proxy ~ ('KProxy :: KProxy k)) => SEqIx (proxy :: KProxy k) where
+{-
+class (proxy ~ ('Proxy :: Proxy k)) => SEqIx (proxy :: Proxy k) where
   sEqIx :: forall (a :: k) b. Sing a -> Sing b -> Maybe (a :~: b)
 
-instance SEqIx ('KProxy :: KProxy Nat) where
+instance SEqIx ('Proxy :: Proxy Nat) where
   sEqIx SZ     SZ     = Just Refl
   sEqIx SZ     (SS _) = Nothing
   sEqIx (SS _) SZ     = Nothing
@@ -56,7 +55,7 @@ instance SEqIx ('KProxy :: KProxy Nat) where
       Just Refl -> Just Refl
       Nothing   -> Nothing
 
--- instance SDecide ('KProxy :: KProxy Nat) where
+-- instance SDecide ('Proxy :: Proxy Nat) where
 --   (%~) SZ     SZ      = Proved Refl
 --   (%~) SZ     (SS _)  =
 --   (%~) (SS n) (SS n') =
@@ -73,7 +72,7 @@ $(singletons [d|
     deriving (Eq)
   |])
 
-instance SEqIx ('KProxy :: KProxy Test) where
+instance SEqIx ('Proxy :: Proxy Test) where
   sEqIx SSimple          SSimple          = Just Refl
   sEqIx SSimple          (SComplex _ _)   = Nothing
   sEqIx (SComplex _ _)   SSimple          = Nothing
@@ -92,8 +91,8 @@ foo = SS $ SS SZ
 
 bar :: STest ('Complex 'Simple ('Complex 'Simple 'Simple))
 bar = SComplex SSimple $ SComplex SSimple SSimple
-
+-}
 main :: IO ()
 main = do
-  -- print $ sEqIx foo bar
+  --print $ sEqIx foo bar
   return ()

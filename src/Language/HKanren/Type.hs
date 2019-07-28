@@ -81,7 +81,7 @@ instance (HNFData (Type (f (HFree f a)))) => HNFData (Type (HFree f a)) where
 
 
 instance (If (SupportsIx (f r) ix) (TypeI (f r) ix) (TypeI (g r) ix), SingI (SupportsIx (f r) ix)) => TypeI ((:+:) f g r) ix where
-  type SupportsIx ((:+:) f g r) ix = (SupportsIx (f r) ix) :|| (SupportsIx (g r) ix)
+  type SupportsIx ((:+:) f g r) ix = (SupportsIx (f r) ix) || (SupportsIx (g r) ix)
   data Type ((:+:) f g r) ix where
     TSum ::
       (SingI (SupportsIx (f r) ix)) =>

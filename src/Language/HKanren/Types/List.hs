@@ -187,7 +187,7 @@ list = foldr (\x y -> iCons x y) iNil
 
 type family CanReifyList h f where
   CanReifyList (ListF f)     f = 'True
-  CanReifyList ((:+:) f g r) h = CanReifyList (f r) h :|| CanReifyList (g r) h
+  CanReifyList ((:+:) f g r) h = CanReifyList (f r) h || CanReifyList (g r) h
   CanReifyList (HFree f a)   h = CanReifyList (f (HFree f a)) h
   CanReifyList a             b = 'False
 

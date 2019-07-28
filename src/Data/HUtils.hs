@@ -179,7 +179,7 @@ instance (Ord a) => HOrdHet (K a) where
       EQ -> HLT -- whatever
       GT -> HGT
 
-instance (Monoid a) => Monoid (K a b) where
+instance (Semigroup (K a b), Monoid a) => Monoid (K a b) where
   mempty = K mempty
   mappend (K x) (K y) = K $ x <> y
 

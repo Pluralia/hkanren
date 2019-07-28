@@ -299,6 +299,169 @@ natTests = testGroup "nat tests"
       ]
   ]
 
+-----------------------------------------------------------------------------------------------------
+
+il2nl = list . fmap int2nat
+
+mergeQuery
+  :: String
+  -> [Int]
+  -> [Int]
+  -> [Int]
+  -> TestTree
+mergeQuery testName lx ly merged =
+  lispTest
+    testName
+    1
+    (\q -> merge (il2nl lx) (il2nl ly) q)
+    [il2nl merged]
+
+splitQuery
+  :: String
+  -> [Int]
+  -> [Int]
+  -> [Int]
+  -> TestTree
+splitQuery testName l lx ly =
+  lispTest
+    testName
+    1
+    (\q -> fresh $ \x y -> do
+        q ==^ Pair x y
+        split x y (il2nl l))
+    [ iPair (il2nl lx) (il2nl ly) ]
+
+sortQuery
+  :: String
+  -> [Int]
+  -> [Int]
+  -> TestTree
+sortQuery testName l sorted =
+  lispTest
+    testName
+    1
+    (\q -> sort (il2nl l) q)
+    [il2nl sorted]
+
+sortTests :: TestTree
+sortTests = testGroup "sort tests"
+  [ testGroup "merge"
+      [ mergeQuery "1..4" [1..4] [] [1..4]
+      , mergeQuery "1..4" [] [1..4] [1..4]
+      , mergeQuery "1, 1" [1] [1] [1, 1]
+      , mergeQuery "1..6" [1, 4, 5, 6] [2, 3] [1..6]
+      , mergeQuery "1..3" [1, 3] [2] [1..3]
+      , mergeQuery "1, 3" [3] [1] [1, 3]
+--      , mergeQuery "2, 3, 4, 6, 6, 7, 8" [3, 6, 7] [2, 4, 6, 8] [2, 3, 4, 6, 6, 7, 8]
+--      , mergeQuery "1, 2, 3, 4, 5, 6, 7, 8, 9" [1, 5, 8, 9] [2, 3, 4, 6, 7] [1..9]
+--      , mergeQuery "1, 2, 3, 4, 5, 5, 6, 7, 8, 9" [1, 5, 8, 9] [2, 3, 4, 5, 6, 7] [1, 2, 3, 4, 5, 5, 6, 7, 8, 9]
+--      , mergeQuery "1, 2, 3, 4, 5, 6, 7, 7, 8, 9" [1, 8, 9] [2, 3, 4, 5, 6, 7, 7] [1, 2, 3, 4, 5, 6, 7, 7, 8, 9]
+{-
+      , lispTest
+          "split [1..3]"
+          1 
+          (\q -> fresh $ \x y -> do
+             q ==^ Pair x y
+             merge x y (il2nl [1..3]))
+          [ iPair (il2nl []) (il2nl [1..3])
+          , iPair (il2nl [1]) (il2nl [2..3])
+          , iPair (il2nl [1, 3]) (il2nl [2])
+          , iPair (il2nl [1, 3]) (il2nl [2])
+          ]
+-}
+      ]
+  , testGroup "split"
+      [ splitQuery "1..3" [1..3] [1, 3] [2]
+      , splitQuery "3, 2, 1" [3, 2, 1] [3, 1] [2]
+      , splitQuery "3, 4" [3, 4] [3] [4]
+      , splitQuery "1..4" [1..4] [1, 3] [2, 4]
+      , splitQuery "2, 4, 6, 2, 5, 7, 4" [2, 4, 6, 2, 5, 7, 4] [2, 6, 5, 4] [4, 2, 7]
+      ]
+  , testGroup "sort"
+      [ sortQuery "1..3" [1..3] [1..3]
+      , sortQuery "3, 2, 1" [3, 2, 1] [1..3]
+      , sortQuery "3, 4" [3, 4] [3, 4]
+--      , sortQuery "4, 1, 3, 2" [4, 1, 3, 2] [1..4]
+--      , sortQuery "2, 2, 4, 5, 6, 7" [2, 4, 6, 2, 5, 7] [2, 2, 4, 5, 6, 7]
+      ]
+{-
+   , testGroup "sortedMergeTwo"
+      [ sortedMergeTwoQuery "1 2 -> [1, 2]" 1 2 [1, 2]
+      , sortedMergeTwoQuery "2 1 -> [2, 1]" 2 1 [1, 2]
+      , sortedMergeTwoQuery "2 2 -> [2, 2]" 2 2 [2, 2]
+      , sortedMergeTwoQuery "5 7 -> [5, 7]" 5 7 [5, 7]
+      , sortedMergeTwoQuery "7 5 -> [5, 7]" 7 5 [5, 7]
+      , sortedMergeTwoQuery "5 5 -> [5, 5]" 5 5 [5, 5]
+      ]
+  , testGroup "x <= y (leq)"
+      [ leqoQuery "1 2 -> 1" 1 2 1
+      , leqoQuery "2 1 -> 0" 2 1 0
+      , leqoQuery "2 2 -> 1" 2 2 1
+      , leqoQuery "5 7 -> 1" 5 7 1
+      , leqoQuery "7 5 -> 0" 7 5 0
+      , leqoQuery "5 5 -> 1" 5 5 1
+      ]
+  , testGroup "get equal"
+      [ lispTest
+        "7 = x ? 1"
+        1
+        (\q -> leqo
+                 (int2nat 7)
+                 q
+                 (int2nat 1))
+        [int2nat 7]
+      ]
+  , testGroup "cmpo"
+      [ cmpoQuery "7 < 7 ? 0" 7 7 0
+      , cmpoQuery "1 < 7 ? 1" 1 7 1
+      , cmpoQuery "7 < 1 ? 1" 7 1 2
+      ]
+-}
+  ]
+
+
+sortedMergeTwoQuery
+  :: String
+  -> Int
+  -> Int
+  -> [Int]
+  -> TestTree
+sortedMergeTwoQuery testName x y xy =
+  lispTest
+    testName
+    1  
+    (\q -> sortedMergeTwo (int2nat x) (int2nat y) q)
+    [il2nl xy]
+
+
+leqoQuery
+  :: String
+  -> Int
+  -> Int
+  -> Int
+  -> TestTree
+leqoQuery testName x y expected =
+  lispTest
+    testName
+    1
+    (\q -> leqo (int2nat x) (int2nat y) q)
+    [int2nat expected]
+
+
+cmpoQuery
+  :: String
+  -> Int
+  -> Int
+  -> Int
+  -> TestTree
+cmpoQuery testName x y expected =
+  lispTest
+    testName
+    1
+    (\q -> cmpo (int2nat x) (int2nat y) q)
+    [int2nat expected]
+
+----------------------------------------------------------------------------------------------------
 
 allUniqueQuery
   :: (TypeI (LispTermF LispTerm) ix)
@@ -451,8 +614,10 @@ main = defaultMain $
         [ appendTests
         , memberTests
         , allUniqueTests
+        , sortTests
         ]
     , natTests
     , ixComparisonTests
     , listOrdInstanceTests
     ]
+
