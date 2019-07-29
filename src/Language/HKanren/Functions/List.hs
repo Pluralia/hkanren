@@ -112,7 +112,7 @@ sort l sorted =
        split lx ly l
        sort lx sx
        sort ly sy
-       merge lx ly sorted)
+       merge sx sy sorted)
 
 -----------------------------------------------------------------------------------------------------
 

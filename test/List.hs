@@ -348,12 +348,16 @@ sortQuery testName l sorted =
 sortTests :: TestTree
 sortTests = testGroup "sort tests"
   [ testGroup "merge"
-      [ mergeQuery "1..4" [1..4] [] [1..4]
+      [ mergeQuery "1..3" [1, 3] [2] [1..3]
+      , mergeQuery "1, 3" [3] [1] [1, 3]
+      , mergeQuery "2" [2] [] [2]
+{-
+      , mergeQuery "1, 3" [3] [1] [1, 3]
+      , mergeQuery "1..4" [1..4] [] [1..4]
       , mergeQuery "1..4" [] [1..4] [1..4]
       , mergeQuery "1, 1" [1] [1] [1, 1]
       , mergeQuery "1..6" [1, 4, 5, 6] [2, 3] [1..6]
-      , mergeQuery "1..3" [1, 3] [2] [1..3]
-      , mergeQuery "1, 3" [3] [1] [1, 3]
+-}
 --      , mergeQuery "2, 3, 4, 6, 6, 7, 8" [3, 6, 7] [2, 4, 6, 8] [2, 3, 4, 6, 6, 7, 8]
 --      , mergeQuery "1, 2, 3, 4, 5, 6, 7, 8, 9" [1, 5, 8, 9] [2, 3, 4, 6, 7] [1..9]
 --      , mergeQuery "1, 2, 3, 4, 5, 5, 6, 7, 8, 9" [1, 5, 8, 9] [2, 3, 4, 5, 6, 7] [1, 2, 3, 4, 5, 5, 6, 7, 8, 9]
@@ -373,18 +377,22 @@ sortTests = testGroup "sort tests"
 -}
       ]
   , testGroup "split"
-      [ splitQuery "1..3" [1..3] [1, 3] [2]
-      , splitQuery "3, 2, 1" [3, 2, 1] [3, 1] [2]
+      [ splitQuery "3, 2, 1" [3, 2, 1] [3, 1] [2]
+      , splitQuery "3, 1" [3, 1] [3] [1]
+      , splitQuery "2" [2] [2] []
+{-
       , splitQuery "3, 4" [3, 4] [3] [4]
       , splitQuery "1..4" [1..4] [1, 3] [2, 4]
       , splitQuery "2, 4, 6, 2, 5, 7, 4" [2, 4, 6, 2, 5, 7, 4] [2, 6, 5, 4] [4, 2, 7]
+-}
       ]
   , testGroup "sort"
-      [ sortQuery "1..3" [1..3] [1..3]
-      , sortQuery "3, 2, 1" [3, 2, 1] [1..3]
-      , sortQuery "3, 4" [3, 4] [3, 4]
---      , sortQuery "4, 1, 3, 2" [4, 1, 3, 2] [1..4]
---      , sortQuery "2, 2, 4, 5, 6, 7" [2, 4, 6, 2, 5, 7] [2, 2, 4, 5, 6, 7]
+      [ sortQuery "3, 1" [3, 1] [1, 3]
+      , sortQuery "2" [2] [2]
+      , sortQuery "3, 2, 1" [3, 2, 1] [1, 2, 3]
+      , sortQuery "1..3" [1..3] [1..3]
+      , sortQuery "4, 1, 3, 2" [4, 1, 3, 2] [1..4]
+      , sortQuery "2, 2, 4, 5, 6, 7" [2, 4, 6, 2, 5, 7] [2, 2, 4, 5, 6, 7]
       ]
 {-
   , testGroup "x <= y (leq)"
