@@ -584,8 +584,9 @@ isHSorted (x:xs@(x':_)) =
 
 main :: IO ()
 main = defaultMain $
-  adjustOption (const $ QuickCheckTests 1000) $
-  adjustOption (const $ QuickCheckMaxSize 1000) $
+  adjustOption (const $ QuickCheckTests 10000) $
+  adjustOption (const $ QuickCheckMaxSize 10000) $
+  adjustOption (const $ mkTimeout 1000000000) $
   testGroup "List Tests"
     [ testGroup "functions"
         [ appendTests
