@@ -32,7 +32,6 @@ module Language.HKanren.Functions.List
   , foldl2o
   , foldl2o'
 ---------------------------
-  , sortedMergeTwo
   , merge
   , split
   , sort
@@ -48,33 +47,6 @@ import Language.HKanren.Functions.Nat
 import Prelude (return, ($), Int, fromInteger, (*))
 
 -----------------------------------------------------------------------------------------------------
-
-mergeTwo
-  :: forall k ix. (ListF :<: LFunctor k, TypeI (Term1 k) ix, TypeI (Term1 k) (List ix))
-  => Term k ix
-  -> Term k ix
-  -> Term k (List ix)
-  -> Predicate k
-mergeTwo x y merged =
-  fresh $ \nil ys -> do
-    nil ==^ Nil
-    Cons y nil ^== ys
-    Cons x ys ^== merged
-
-sortedMergeTwo
-  :: forall k. (ListF :<: LFunctor k, NatF :<: LFunctor k, TypeI (Term1 k) Nat, TypeI (Term1 k) (List Nat))
-  => Term k Nat
-  -> Term k Nat
-  -> Term k (List Nat)
-  -> Predicate k
-sortedMergeTwo x y merged =
-  conde
-    (do
-       leqo x y (iS iZ)
-       mergeTwo x y merged)
-    (do
-       leqo x y iZ
-       mergeTwo y x merged)
 
 merge
   :: forall k. (ListF :<: LFunctor k, NatF :<: LFunctor k, TypeI (Term1 k) Nat, TypeI (Term1 k) (List Nat))

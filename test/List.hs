@@ -301,6 +301,7 @@ natTests = testGroup "nat tests"
 
 -----------------------------------------------------------------------------------------------------
 
+il2nl :: [Int] -> HFree (LFunctor LispVar) LispVar (List Nat)
 il2nl = list . fmap int2nat
 
 mergeQuery
@@ -342,6 +343,7 @@ sortQuery testName l sorted =
     1
     (\q -> sort (il2nl l) q)
     [il2nl sorted]
+
 
 sortTests :: TestTree
 sortTests = testGroup "sort tests"
@@ -385,14 +387,6 @@ sortTests = testGroup "sort tests"
 --      , sortQuery "2, 2, 4, 5, 6, 7" [2, 4, 6, 2, 5, 7] [2, 2, 4, 5, 6, 7]
       ]
 {-
-   , testGroup "sortedMergeTwo"
-      [ sortedMergeTwoQuery "1 2 -> [1, 2]" 1 2 [1, 2]
-      , sortedMergeTwoQuery "2 1 -> [2, 1]" 2 1 [1, 2]
-      , sortedMergeTwoQuery "2 2 -> [2, 2]" 2 2 [2, 2]
-      , sortedMergeTwoQuery "5 7 -> [5, 7]" 5 7 [5, 7]
-      , sortedMergeTwoQuery "7 5 -> [5, 7]" 7 5 [5, 7]
-      , sortedMergeTwoQuery "5 5 -> [5, 5]" 5 5 [5, 5]
-      ]
   , testGroup "x <= y (leq)"
       [ leqoQuery "1 2 -> 1" 1 2 1
       , leqoQuery "2 1 -> 0" 2 1 0
@@ -401,16 +395,6 @@ sortTests = testGroup "sort tests"
       , leqoQuery "7 5 -> 0" 7 5 0
       , leqoQuery "5 5 -> 1" 5 5 1
       ]
-  , testGroup "get equal"
-      [ lispTest
-        "7 = x ? 1"
-        1
-        (\q -> leqo
-                 (int2nat 7)
-                 q
-                 (int2nat 1))
-        [int2nat 7]
-      ]
   , testGroup "cmpo"
       [ cmpoQuery "7 < 7 ? 0" 7 7 0
       , cmpoQuery "1 < 7 ? 1" 1 7 1
@@ -418,20 +402,6 @@ sortTests = testGroup "sort tests"
       ]
 -}
   ]
-
-
-sortedMergeTwoQuery
-  :: String
-  -> Int
-  -> Int
-  -> [Int]
-  -> TestTree
-sortedMergeTwoQuery testName x y xy =
-  lispTest
-    testName
-    1  
-    (\q -> sortedMergeTwo (int2nat x) (int2nat y) q)
-    [il2nl xy]
 
 
 leqoQuery
@@ -446,7 +416,6 @@ leqoQuery testName x y expected =
     1
     (\q -> leqo (int2nat x) (int2nat y) q)
     [int2nat expected]
-
 
 cmpoQuery
   :: String
