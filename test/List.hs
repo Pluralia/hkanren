@@ -351,6 +351,7 @@ sortTests = testGroup "sort tests"
       [ mergeQuery "1..3" [1, 3] [2] [1..3]
       , mergeQuery "1, 3" [3] [1] [1, 3]
       , mergeQuery "2" [2] [] [2]
+      , mergeQuery "1..4" [3, 4] [1, 2] [1..4]
 {-
       , mergeQuery "1, 3" [3] [1] [1, 3]
       , mergeQuery "1..4" [1..4] [] [1..4]
@@ -362,24 +363,14 @@ sortTests = testGroup "sort tests"
 --      , mergeQuery "1, 2, 3, 4, 5, 6, 7, 8, 9" [1, 5, 8, 9] [2, 3, 4, 6, 7] [1..9]
 --      , mergeQuery "1, 2, 3, 4, 5, 5, 6, 7, 8, 9" [1, 5, 8, 9] [2, 3, 4, 5, 6, 7] [1, 2, 3, 4, 5, 5, 6, 7, 8, 9]
 --      , mergeQuery "1, 2, 3, 4, 5, 6, 7, 7, 8, 9" [1, 8, 9] [2, 3, 4, 5, 6, 7, 7] [1, 2, 3, 4, 5, 6, 7, 7, 8, 9]
-{-
-      , lispTest
-          "split [1..3]"
-          1 
-          (\q -> fresh $ \x y -> do
-             q ==^ Pair x y
-             merge x y (il2nl [1..3]))
-          [ iPair (il2nl []) (il2nl [1..3])
-          , iPair (il2nl [1]) (il2nl [2..3])
-          , iPair (il2nl [1, 3]) (il2nl [2])
-          , iPair (il2nl [1, 3]) (il2nl [2])
-          ]
--}
       ]
   , testGroup "split"
       [ splitQuery "3, 2, 1" [3, 2, 1] [3, 1] [2]
       , splitQuery "3, 1" [3, 1] [3] [1]
       , splitQuery "2" [2] [2] []
+      , splitQuery "4, 1, 3, 2" [4, 1, 3, 2] [4, 3] [1, 2]
+      , splitQuery "3, 2" [3, 2] [3] [2]
+      , splitQuery "[]" [] [] []
 {-
       , splitQuery "3, 4" [3, 4] [3] [4]
       , splitQuery "1..4" [1..4] [1, 3] [2, 4]
@@ -389,10 +380,12 @@ sortTests = testGroup "sort tests"
   , testGroup "sort"
       [ sortQuery "3, 1" [3, 1] [1, 3]
       , sortQuery "2" [2] [2]
-      , sortQuery "3, 2, 1" [3, 2, 1] [1, 2, 3]
-      , sortQuery "1..3" [1..3] [1..3]
+--      , sortQuery "3, 2, 1" [3, 2, 1] [1, 2, 3]
+--      , sortQuery "1..3" [1..3] [1..3]
+      , sortQuery "4, 3" [4, 3] [3, 4]
+      , sortQuery "1, 2" [1, 2] [1, 2]
       , sortQuery "4, 1, 3, 2" [4, 1, 3, 2] [1..4]
-      , sortQuery "2, 2, 4, 5, 6, 7" [2, 4, 6, 2, 5, 7] [2, 2, 4, 5, 6, 7]
+--      , sortQuery "2, 2, 4, 5, 6, 7" [2, 4, 6, 2, 5, 7] [2, 2, 4, 5, 6, 7]
       ]
 {-
   , testGroup "x <= y (leq)"
