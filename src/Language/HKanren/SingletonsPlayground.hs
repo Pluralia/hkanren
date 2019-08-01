@@ -28,10 +28,10 @@
 module Language.HKanren.SingletonsPlayground where
 
 import Data.Singletons
-import Data.Singletons.Prelude.Bool
-import Data.Singletons.Decide
-import Data.Singletons.Prelude.Eq
-import Data.Singletons.TH
+-- import Data.Singletons.Prelude.Bool
+-- import Data.Singletons.Decide
+-- import Data.Singletons.Prelude.Eq
+-- import Data.Singletons.TH
 -- import Data.Type.Equality
 
 data Nat = Z | S Nat
