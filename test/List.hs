@@ -318,21 +318,18 @@ sortTests = testGroup "sort tests"
       ]
 -------------------------------------------------
   , testGroup "merge"
-      [ mergeQuery "1..3" [1, 3] [2] [1..3]
-      , mergeQuery "1, 3" [3] [1] [1, 3]
-      , mergeQuery "2" [2] [] [2]
-      , mergeQuery "1..4" [3, 4] [1, 2] [1..4]
-{-
-      , mergeQuery "1, 3" [3] [1] [1, 3]
-      , mergeQuery "1..4" [1..4] [] [1..4]
-      , mergeQuery "1..4" [] [1..4] [1..4]
-      , mergeQuery "1, 1" [1] [1] [1, 1]
-      , mergeQuery "1..6" [1, 4, 5, 6] [2, 3] [1..6]
--}
---      , mergeQuery "2, 3, 4, 6, 6, 7, 8" [3, 6, 7] [2, 4, 6, 8] [2, 3, 4, 6, 6, 7, 8]
---      , mergeQuery "1, 2, 3, 4, 5, 6, 7, 8, 9" [1, 5, 8, 9] [2, 3, 4, 6, 7] [1..9]
---      , mergeQuery "1, 2, 3, 4, 5, 5, 6, 7, 8, 9" [1, 5, 8, 9] [2, 3, 4, 5, 6, 7] [1, 2, 3, 4, 5, 5, 6, 7, 8, 9]
---      , mergeQuery "1, 2, 3, 4, 5, 6, 7, 7, 8, 9" [1, 8, 9] [2, 3, 4, 5, 6, 7, 7] [1, 2, 3, 4, 5, 6, 7, 7, 8, 9]
+      [ mergeQuery "1,3 + 2" [1, 3] [2] [1..3]
+      , mergeQuery "3 + 1" [3] [1] [1, 3]
+      , mergeQuery "2 + ." [2] [] [2]
+      , mergeQuery "3,4 + 1,2" [3, 4] [1, 2] [1..4]
+      , mergeQuery "1..4 + ." [1..4] [] [1..4]
+      , mergeQuery ". + 1..4" [] [1..4] [1..4]
+      , mergeQuery "1 + 1" [1] [1] [1, 1]
+      , mergeQuery "1.4..6 + 2,3" [1, 4, 5, 6] [2, 3] [1..6]
+      , mergeQuery "2, 3, 4, 6, 6, 7, 8" [3, 6, 7] [2, 4, 6, 8] [2, 3, 4, 6, 6, 7, 8]
+      , mergeQuery "1, 2, 3, 4, 5, 6, 7, 8, 9" [1, 5, 8, 9] [2, 3, 4, 6, 7] [1..9]
+      , mergeQuery "1, 2, 3, 4, 5, 5, 6, 7, 8, 9" [1, 5, 8, 9] [2, 3, 4, 5, 6, 7] [1, 2, 3, 4, 5, 5, 6, 7, 8, 9]
+      , mergeQuery "1, 2, 3, 4, 5, 6, 7, 7, 8, 9" [1, 8, 9] [2, 3, 4, 5, 6, 7, 7] [1, 2, 3, 4, 5, 6, 7, 7, 8, 9]
       ]
   , testGroup "split"
       [ splitQuery "3, 2, 1" [3, 2, 1] [3, 1] [2]
@@ -341,21 +338,19 @@ sortTests = testGroup "sort tests"
       , splitQuery "4, 1, 3, 2" [4, 1, 3, 2] [4, 3] [1, 2]
       , splitQuery "3, 2" [3, 2] [3] [2]
       , splitQuery "[]" [] [] []
-{-
       , splitQuery "3, 4" [3, 4] [3] [4]
       , splitQuery "1..4" [1..4] [1, 3] [2, 4]
       , splitQuery "2, 4, 6, 2, 5, 7, 4" [2, 4, 6, 2, 5, 7, 4] [2, 6, 5, 4] [4, 2, 7]
--}
       ]
   , testGroup "sort"
       [ mergeSortQuery "3, 1" [3, 1] [1, 3]
       , mergeSortQuery "2" [2] [2]
---      , mergeSortQuery "3, 2, 1" [3, 2, 1] [1, 2, 3]
---      , mergeSortQuery "1..3" [1..3] [1..3]
+      , mergeSortQuery "3, 2, 1" [3, 2, 1] [1, 2, 3]
+      , mergeSortQuery "1..3" [1..3] [1..3]
       , mergeSortQuery "4, 3" [4, 3] [3, 4]
       , mergeSortQuery "1, 2" [1, 2] [1, 2]
---      , mergeSortQuery "4, 1, 3, 2" [4, 1, 3, 2] [1..4]
---      , mergeSortQuery "2, 2, 4, 5, 6, 7" [2, 4, 6, 2, 5, 7] [2, 2, 4, 5, 6, 7]
+      , mergeSortQuery "4, 1, 3, 2" [4, 1, 3, 2] [1..4]
+      , mergeSortQuery "2, 4, 5, 6, 7" [4, 6, 2, 5, 7] [2, 4, 5, 6, 7]
       ]
 -------------------------------------------------
   ]
@@ -382,11 +377,11 @@ splitQuery
 splitQuery testName l lx ly =
   lispTest
     testName
-    1
+    10
     (\q -> fresh $ \x y -> do
         q ==^ Pair x y
         split x y (il2nl l))
-    [ iPair (il2nl lx) (il2nl ly) ]
+    [ iPair (il2nl lx) (il2nl ly)]
 
 mergeQuery
   :: String
@@ -565,13 +560,14 @@ main = defaultMain $
   adjustOption (const $ mkTimeout 1000000000) $
   testGroup "List Tests"
     [ testGroup "functions"
-        [ appendTests
-        , memberTests
-        , allUniqueTests
-        , sortTests
+        [
+--          appendTests
+--        , memberTests
+--        , allUniqueTests
+          sortTests
         ]
-    , natTests
-    , ixComparisonTests
-    , listOrdInstanceTests
+--    , natTests
+--    , ixComparisonTests
+--    , listOrdInstanceTests
     ]
 

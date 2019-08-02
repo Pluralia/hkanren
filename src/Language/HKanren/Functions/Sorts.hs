@@ -45,19 +45,27 @@ merge
   -> Predicate k
 merge lx ly merged =
   conde
-    (do
-       merged === ly)
-       lx ==^ Nil
-    (do
-       ly ==^ Nil
-       merged === lx)
+    (fresh $ \nil -> do
+       nil ==^ Nil
+       conde
+         (do
+            lx === nil
+            merged === ly)
+          (do
+            ly === nil
+            merged === lx))
     (fresh $ \x xs y ys ms -> do
        Cons x xs ^== lx
        Cons y ys ^== ly
-       leqo x y (iS iZ)
-       merge xs ly ms
-       Cons x ms ^== merged)
-    (merge ly lx merged)
+       conde
+         (do
+            leqo x y (iS iZ)
+            merge xs ly ms
+            Cons x ms ^== merged)
+         (do
+            leqo x y iZ
+            merge lx ys ms
+            Cons y ms ^== merged))
 
 split
   :: forall k ix. (ListF :<: LFunctor k, TypeI (Term1 k) ix, TypeI (Term1 k) (List ix))
@@ -67,15 +75,15 @@ split
   -> Predicate k
 split lx ly l =
   conde
-    (do
-       l ==^ Nil
-       lx ==^ Nil
-       ly ==^ Nil)
     (fresh $ \nil x -> do
        nil ==^ Nil
-       Cons x nil ^== l
+       conde
+         (do
+            l === nil)
+         (do
+            Cons x nil ^== l)
        lx === l
-       ly ==^ Nil)
+       ly === nil)
     (fresh $ \x xs y ys lx' ly' -> do
        Cons x xs ^== l
        Cons y ys ^== xs
@@ -90,14 +98,16 @@ mergeSort
   -> Predicate k
 mergeSort l sorted =
   conde
-    (do
-       l ==^ Nil
-       sorted ==^ Nil)
     (fresh $ \nil x -> do
        nil ==^ Nil
-       Cons x nil ^== l
+       conde
+         (do
+            l === nil)
+         (do
+            Cons x nil ^== l)
        sorted === l)
-    (fresh $ \lx ly sx sy -> do
+    (fresh $ \h t lx ly sx sy -> do
+       Cons h t ^== l
        split lx ly l
        mergeSort lx sx
        mergeSort ly sy
