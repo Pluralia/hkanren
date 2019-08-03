@@ -24,7 +24,6 @@ module Language.HKanren.Functions.Nat
   ( pluso
   , plus1
   , plus3o
-  , leqo
   )
 where
 
@@ -71,27 +70,3 @@ plus3o x y z w = do
   t <- pluso x y
   pluso t z w
 
--- x <= y -> 1
--- x > y  -> 0
-leqo
-  :: (NatF :<: LFunctor k, TypeI (Term1 k) Nat)
-  => Term k Nat
-  -> Term k Nat
-  -> Term k Nat
-  -> Predicate k
-leqo x y res = do
-  conde
-    (do
-      x ==^ Z
-      y ==^ Z
-      res === iS iZ)
-    (do
-      x ==^ Z
-      res === iS iZ)
-    (do
-      y ==^ Z
-      res === iZ)
-    (fresh $ \x' y' -> do
-      x ==^ S x'
-      y ==^ S y'
-      leqo x' y' res)

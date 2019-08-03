@@ -40,6 +40,7 @@ import Data.Ord (comparing)
 import Data.String
 import Prelude hiding ((>>), (>>=))
 
+
 assertHEqual
   :: (HEq f, HEqHet f, HShow f)
   => String -- ^ prefix
@@ -305,18 +306,109 @@ natTests = testGroup "nat tests"
 il2nl :: [Int] -> HFree (LFunctor LispVar) LispVar (List Nat)
 il2nl = list . fmap int2nat
 
-
-sortTests :: TestTree
-sortTests = testGroup "sort tests"
-  [ testGroup "x <= y (leq)"
-      [ leqoQuery "1 2 -> 1" 1 2 1
-      , leqoQuery "2 1 -> 0" 2 1 0
-      , leqoQuery "2 2 -> 1" 2 2 1
-      , leqoQuery "5 7 -> 1" 5 7 1
-      , leqoQuery "7 5 -> 0" 7 5 0
-      , leqoQuery "5 5 -> 1" 5 5 1
-      ]
 -------------------------------------------------
+-------------------------------------------------
+
+permSortTests :: TestTree
+permSortTests = testGroup "perm sort tests"
+  [ testGroup "sort"
+      [ permSortQuery "3, 1" [3, 1] [1, 3]
+      , permSortQuery "2" [2] [2]
+      , permSortQuery "3, 2, 1" [3, 2, 1] [1, 2, 3]
+      , permSortQuery "1..3" [1..3] [1..3]
+      , permSortQuery "4, 3" [4, 3] [3, 4]
+      , permSortQuery "1, 2" [1, 2] [1, 2]
+      , permSortQuery "4, 1, 3, 2" [4, 1, 3, 2] [1..4]
+      , permSortQuery "4, 6, 2, 5, 7" [4, 6, 2, 5, 7] [2, 4, 5, 6, 7]
+      , permSortQuery "2, 4, 6, 2, 5, 7" [2, 4, 6, 2, 5, 7] [2, 2, 4, 5, 6, 7]
+      , permSortQuery "7, 6..1" [7, 6..1] [1..7]
+      ]
+  , testGroup "smallesto"
+      [ smallestoQuery "[3, 1]" [3, 1] 1 [3]
+      , smallestoQuery "[2]" [2] 2 []
+      , smallestoQuery "[3, 2, 1]" [3, 2, 1] 1 [3, 2]
+      , smallestoQuery "[1, 2]" [1, 2] 1 [2]
+      , smallestoQuery "4, 1, 3, 2" [4, 1, 3, 2] 1 [4, 2, 3]
+      , smallestoQuery "4, 6, 2, 5, 7" [4, 6, 2, 5, 7] 2 [4, 6, 5, 7]
+      , smallestoQuery "2, 4, 6, 2, 5, 7" [2, 4, 6, 2, 5, 7] 2 [2, 4, 6, 5, 7]
+      ]
+  , testGroup "minmaxo"
+      [ minmaxoQuery "1 2 -> 1 2" 1 2 1 2
+      , minmaxoQuery "2 1 -> 1 2" 2 1 1 2
+      , minmaxoQuery "2 2 -> 2 2" 2 2 2 2
+      , minmaxoQuery "5 7 -> 5 7" 5 7 5 7
+      , minmaxoQuery "7 5 -> 5 7" 7 5 5 7
+      , minmaxoQuery "5 5 -> 5 5" 5 5 5 5
+      ]
+  ]
+
+permSortQuery
+  :: String
+  -> [Int]
+  -> [Int]
+  -> TestTree
+permSortQuery testName l sorted =
+  lispTest
+    testName
+    1
+    (\q -> permSort (il2nl l) q)
+    [il2nl sorted]
+
+smallestoQuery
+  :: String
+  -> [Int]
+  -> Int
+  -> [Int]
+  -> TestTree
+smallestoQuery testName l small restl =
+  lispTest
+    testName
+    1
+    (\q -> smallesto (il2nl l) (int2nat small) q)
+    [il2nl restl]
+
+minmaxoQuery
+  :: String
+  -> Int
+  -> Int
+  -> Int
+  -> Int
+  -> TestTree
+minmaxoQuery testName a b min max =
+  lispTest
+    testName
+    1
+    (\q -> minmaxo (int2nat a) (int2nat b) (int2nat min) q)
+    [int2nat max]
+
+-------------------------------------------------
+-------------------------------------------------
+
+mergeSortTests :: TestTree
+mergeSortTests = testGroup "merge sort tests"
+  [ testGroup "sort"
+      [ mergeSortQuery "3, 1" [3, 1] [1, 3]
+      , mergeSortQuery "2" [2] [2]
+      , mergeSortQuery "3, 2, 1" [3, 2, 1] [1, 2, 3]
+      , mergeSortQuery "1..3" [1..3] [1..3]
+      , mergeSortQuery "4, 3" [4, 3] [3, 4]
+      , mergeSortQuery "1, 2" [1, 2] [1, 2]
+      , mergeSortQuery "4, 1, 3, 2" [4, 1, 3, 2] [1..4]
+      , mergeSortQuery "4, 6, 2, 5, 7" [4, 6, 2, 5, 7] [2, 4, 5, 6, 7]
+--      , mergeSortQuery "2, 4, 6, 2, 5, 7" [2, 4, 6, 2, 5, 7] [2, 2, 4, 5, 6, 7]
+--      , mergeSortQuery "7, 6..1" [7, 6..1] [1..7]
+      ]
+  , testGroup "split"
+      [ splitQuery "3, 2, 1" [3, 2, 1] [3, 1] [2]
+      , splitQuery "3, 1" [3, 1] [3] [1]
+      , splitQuery "2" [2] [2] []
+      , splitQuery "4, 1, 3, 2" [4, 1, 3, 2] [4, 3] [1, 2]
+      , splitQuery "3, 2" [3, 2] [3] [2]
+      , splitQuery "[]" [] [] []
+      , splitQuery "3, 4" [3, 4] [3] [4]
+      , splitQuery "1..4" [1..4] [1, 3] [2, 4]
+      , splitQuery "2, 4, 6, 2, 5, 7, 4" [2, 4, 6, 2, 5, 7, 4] [2, 6, 5, 4] [4, 2, 7]
+      ]
   , testGroup "merge"
       [ mergeQuery "1,3 + 2" [1, 3] [2] [1..3]
       , mergeQuery "3 + 1" [3] [1] [1, 3]
@@ -331,30 +423,15 @@ sortTests = testGroup "sort tests"
       , mergeQuery "1, 2, 3, 4, 5, 5, 6, 7, 8, 9" [1, 5, 8, 9] [2, 3, 4, 5, 6, 7] [1, 2, 3, 4, 5, 5, 6, 7, 8, 9]
       , mergeQuery "1, 2, 3, 4, 5, 6, 7, 7, 8, 9" [1, 8, 9] [2, 3, 4, 5, 6, 7, 7] [1, 2, 3, 4, 5, 6, 7, 7, 8, 9]
       ]
-  , testGroup "split"
-      [ splitQuery "3, 2, 1" [3, 2, 1] [3, 1] [2]
-      , splitQuery "3, 1" [3, 1] [3] [1]
-      , splitQuery "2" [2] [2] []
-      , splitQuery "4, 1, 3, 2" [4, 1, 3, 2] [4, 3] [1, 2]
-      , splitQuery "3, 2" [3, 2] [3] [2]
-      , splitQuery "[]" [] [] []
-      , splitQuery "3, 4" [3, 4] [3] [4]
-      , splitQuery "1..4" [1..4] [1, 3] [2, 4]
-      , splitQuery "2, 4, 6, 2, 5, 7, 4" [2, 4, 6, 2, 5, 7, 4] [2, 6, 5, 4] [4, 2, 7]
+  , testGroup "x <= y (leq)"
+      [ leqoQuery "1 2 -> 1" 1 2 1
+      , leqoQuery "2 1 -> 0" 2 1 0
+      , leqoQuery "2 2 -> 1" 2 2 1
+      , leqoQuery "5 7 -> 1" 5 7 1
+      , leqoQuery "7 5 -> 0" 7 5 0
+      , leqoQuery "5 5 -> 1" 5 5 1
       ]
-  , testGroup "sort"
-      [ mergeSortQuery "3, 1" [3, 1] [1, 3]
-      , mergeSortQuery "2" [2] [2]
-      , mergeSortQuery "3, 2, 1" [3, 2, 1] [1, 2, 3]
-      , mergeSortQuery "1..3" [1..3] [1..3]
-      , mergeSortQuery "4, 3" [4, 3] [3, 4]
-      , mergeSortQuery "1, 2" [1, 2] [1, 2]
-      , mergeSortQuery "4, 1, 3, 2" [4, 1, 3, 2] [1..4]
-      , mergeSortQuery "2, 4, 5, 6, 7" [4, 6, 2, 5, 7] [2, 4, 5, 6, 7]
-      ]
--------------------------------------------------
   ]
-
 
 mergeSortQuery
   :: String
@@ -564,7 +641,8 @@ main = defaultMain $
 --          appendTests
 --        , memberTests
 --        , allUniqueTests
-          sortTests
+          mergeSortTests
+        , permSortTests
         ]
 --    , natTests
 --    , ixComparisonTests
