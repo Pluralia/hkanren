@@ -28,6 +28,7 @@ library
                      , Data.Levels
                      , Language.HKanren
                      , Language.HKanren.Functions.Sorts
+                     , Language.HKanren.Functions.Trans
                      , Language.HKanren.Functions.List
                      , Language.HKanren.Functions.Nat
                      , Language.HKanren.IntLVar

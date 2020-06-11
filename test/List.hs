@@ -19,6 +19,7 @@ import Data.HUtils
 import Data.Monoid
 import qualified Data.Text.Lazy as T
 import Language.HKanren.Functions.Sorts
+import Language.HKanren.Functions.Trans
 import Language.HKanren.Functions.List
 import Language.HKanren.Functions.Nat
 import Language.HKanren.Nondeterminism
@@ -311,7 +312,35 @@ il2nl = list . fmap int2nat
 
 permSortTests :: TestTree
 permSortTests = testGroup "perm sort tests"
-  [ testGroup "sort"
+  [ testGroup "trans"
+
+      [ permSortIOQuery "3, 1" [3, 1] [1, 3]
+      , permSortIOQuery "2" [2] [2]
+      , permSortIOQuery "3, 2, 1" [3, 2, 1] [1, 2, 3]
+      , permSortIOQuery "1..3" [1..3] [1..3]
+      , permSortIOQuery "4, 3" [4, 3] [3, 4]
+      , permSortIOQuery "1, 2" [1, 2] [1, 2]
+      , permSortIOQuery "4, 1, 3, 2" [4, 1, 3, 2] [1..4]
+      , permSortIOQuery "4, 6, 2, 5, 7" [4, 6, 2, 5, 7] [2, 4, 5, 6, 7]
+      , permSortIOQuery "2, 4, 6, 2, 5, 7" [2, 4, 6, 2, 5, 7] [2, 2, 4, 5, 6, 7]
+      , permSortIOQuery "25..1" [25,24..1] [1..25]
+      , permSortIOQuery "30..1" [30,29..1] [1..30]
+      , permSortIOQuery "40..1" [40,39..1] [1..40]
+      , permSortIOQuery "45..1" [45,44..1] [1..45]
+      , permSortIOQuery "50..1" [50,49..1] [1..50]
+      , permSortIOQuery "53..1" [53,52..1] [1..53]
+      , permSortIOQuery "54..1" [54,53..1] [1..54]
+      , permSortIOQuery "55..1" [55,54..1] [1..55]
+      , permSortIOQuery "60..1" [60,59..1] [1..60]
+      , permSortIOQuery "70..1" [70,69..1] [1..70]
+      , permSortIOQuery "80..1" [80,79..1] [1..80]
+      , permSortIOQuery "90..1" [90,89..1] [1..90]
+      , permSortIOQuery "100..1" [100,99..1] [1..100]
+--      , permSortIOQuery "250,249..1" [250,249..1] [1..250]
+--      , permSortIOQuery "500,499..1" [500,499..1] [1..500]
+--      , permSortIOQuery "750,749" [750,749] [1..750]
+      ]
+  , testGroup "sort"
       [ permSortQuery "3, 1" [3, 1] [1, 3]
       , permSortQuery "2" [2] [2]
       , permSortQuery "3, 2, 1" [3, 2, 1] [1, 2, 3]
@@ -321,8 +350,21 @@ permSortTests = testGroup "perm sort tests"
       , permSortQuery "4, 1, 3, 2" [4, 1, 3, 2] [1..4]
       , permSortQuery "4, 6, 2, 5, 7" [4, 6, 2, 5, 7] [2, 4, 5, 6, 7]
       , permSortQuery "2, 4, 6, 2, 5, 7" [2, 4, 6, 2, 5, 7] [2, 2, 4, 5, 6, 7]
-      , permSortQuery "7, 6..1" [7, 6..1] [1..7]
+      , permSortQuery "10..1" [10,9..1] [1..10]
+      , permSortQuery "20..1" [20,19..1] [1..20]
+      , permSortQuery "30..1" [30,29..1] [1..30]
+      , permSortQuery "40..1" [40,39..1] [1..40]
+--      , permSortQuery "25..1" [25,24..1] [1..25]
+--      , permSortQuery "30..1" [30,29..1] [1..30]
+--      , permSortQuery "40..1" [40,39..1] [1..40]
+--      , permSortQuery "45..1" [45,44..1] [1..45]
+--      , permSortQuery "50..1" [50,49..1] [1..50]
+--      , permSortQuery "53..1" [53,52..1] [1..53]
+      , permSortQuery "54..1" [54,53..1] [1..54]
+--      , permSortQuery "55..1" [55,54..1] [1..55]
       ]
+
+{-
   , testGroup "smallesto"
       [ smallestoQuery "[3, 1]" [3, 1] 1 [3]
       , smallestoQuery "[2]" [2] 2 []
@@ -340,7 +382,16 @@ permSortTests = testGroup "perm sort tests"
       , minmaxoQuery "7 5 -> 5 7" 7 5 5 7
       , minmaxoQuery "5 5 -> 5 5" 5 5 5 5
       ]
+-}
   ]
+
+permSortIOQuery
+  :: String
+  -> [Int]
+  -> [Int]
+  -> TestTree
+permSortIOQuery testName l sorted =
+  testCase testName $ permSortIO (fmap i2p l) @?= [(fmap i2p sorted)]
 
 permSortQuery
   :: String
@@ -394,7 +445,7 @@ mergeSortTests = testGroup "merge sort tests"
       , mergeSortQuery "4, 3" [4, 3] [3, 4]
       , mergeSortQuery "1, 2" [1, 2] [1, 2]
       , mergeSortQuery "4, 1, 3, 2" [4, 1, 3, 2] [1..4]
-      , mergeSortQuery "4, 6, 2, 5, 7" [4, 6, 2, 5, 7] [2, 4, 5, 6, 7]
+--      , mergeSortQuery "4, 6, 2, 5, 7" [4, 6, 2, 5, 7] [2, 4, 5, 6, 7]
 --      , mergeSortQuery "2, 4, 6, 2, 5, 7" [2, 4, 6, 2, 5, 7] [2, 2, 4, 5, 6, 7]
 --      , mergeSortQuery "7, 6..1" [7, 6..1] [1..7]
       ]
